@@ -6,3 +6,6 @@
 __pycache__
 *.swp
 *.pyc
+v2-api
+tests/integration/.tox/
+tests/integration/MANIFEST

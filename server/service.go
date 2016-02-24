@@ -74,7 +74,7 @@ func (s *Server) getServicesSQL(r *http.Request, id string) string {
 	return q
 }
 
-func (s *Server) ServiceCreate(rw http.ResponseWriter, r *http.Request) error {
+/*func (s *Server) ServiceCreate(rw http.ResponseWriter, r *http.Request) error {
 	rancherClient, err := s.getClient(r)
 	if err != nil {
 		return err
@@ -91,4 +91,4 @@ func (s *Server) ServiceCreate(rw http.ResponseWriter, r *http.Request) error {
 	}
 
 	return s.getService(rw, r, service.Id)
-}
+}*/

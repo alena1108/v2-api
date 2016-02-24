@@ -3,17 +3,26 @@ package server
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
 	"github.com/rancher/go-rancher/api"
-
 	"github.com/rancher/go-rancher/client"
+)
+
+const (
+	obfuscator = "1i"
 )
 
 type Server struct {
 	DB                 *sqlx.DB
 	driver, driverName string
+}
+
+type SchemaConvertor interface {
+	FromSchema(obj interface{}) (interface{}, error)
+	ToSchema(obj interface{}) (interface{}, error)
 }
 
 func New(driver, driverName string) (*Server, error) {
@@ -72,14 +81,14 @@ func (s *Server) writeResponse(err error, r *http.Request, data interface{}) err
 }
 
 func (s *Server) deobfuscate(r *http.Request, typeName string, id string) string {
-	return id
+	return strings.TrimPrefix(id, obfuscator)
 }
 
 func (s *Server) obfuscate(r *http.Request, typeName string, id string) string {
 	if id == "" {
 		return ""
 	}
-	return "1blah" + id
+	return obfuscator + id
 }
 
 func (s *Server) getClient(r *http.Request) (*client.RancherClient, error) {
@@ -88,9 +97,9 @@ func (s *Server) getClient(r *http.Request) (*client.RancherClient, error) {
 	})
 }
 
-func (s *Server) parseInputParameters(r *http.Request) InputData {
-	data := InputData{}
+func (s *Server) parseInputParameters(r *http.Request, obj interface{}) error {
 	decoder := json.NewDecoder(r.Body)
-	decoder.Decode(data)
-	return data
+	decoder.Decode(&obj)
+
+	return nil
 }
