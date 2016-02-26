@@ -6,6 +6,7 @@ import (
 	"github.com/rancher/go-rancher/client"
 	"github.com/rancher/v2-api/model"
 	"net/http"
+	"strconv"
 )
 
 type Container struct{}
@@ -20,6 +21,7 @@ func (s *Server) getContainersSQL(r *http.Request, id string) string {
             COALESCE(external_id, "") as external_id,
             COALESCE(deployment_unit_uuid, "") as deployment_unit_uuid,
             COALESCE(hostname, "") as hostname,
+            COALESCE(allocation_state, "") as allocation_state,
              data
 	  FROM instance
 	  WHERE
@@ -44,7 +46,7 @@ func (s *Server) ContainerCreate(rw http.ResponseWriter, r *http.Request) error 
 		return err
 	}
 
-	v1, err := FromV2(v2)
+	v1, err := FromV2(v2, s, r)
 	if err != nil {
 		return err
 	}
@@ -75,7 +77,7 @@ func (s *Server) ContainerList(rw http.ResponseWriter, r *http.Request) error {
 func (s *Server) getContainer(rw http.ResponseWriter, r *http.Request, id string) error {
 	resourceType := "container"
 
-	id = s.deobfuscate(r, resourceType, id)
+	id = s.deobfuscate(r, "instance", id)
 
 	rows, err := s.namedQuery(s.getContainersSQL(r, id), map[string]interface{}{
 		"account_id": s.getAccountID(r),
@@ -104,17 +106,18 @@ func (s *Server) getContainer(rw http.ResponseWriter, r *http.Request, id string
 			&obj.Version, &obj.FirstRunning, &obj.StartCount,
 			&obj.NativeContainer, &obj.Token, &obj.ExternalID,
 			&obj.DeploymentUnitUUID,
-			&obj.Hostname, &data); err != nil {
+			&obj.Hostname,
+			&obj.AllocationState, &data); err != nil {
 			return err
 		}
 
 		// Obfuscate Ids
-		obj.Id = s.obfuscate(r, resourceType, obj.Id)
+		obj.Id = s.obfuscate(r, "instance", obj.Id)
 		if err = s.parseData(data, obj); err != nil {
 			return err
 		}
 
-		objV2, err := ToV2(obj)
+		objV2, err := ToV2(obj, s, r)
 		if err != nil {
 			return err
 		}
@@ -127,13 +130,21 @@ func (s *Server) getContainer(rw http.ResponseWriter, r *http.Request, id string
 	return s.writeResponse(rows.Err(), r, response)
 }
 
-func ToV2(v1 *model.ContainerV1) (*model.ContainerV2, error) {
+func ToV2(v1 *model.ContainerV1, s *Server, r *http.Request) (*model.ContainerV2, error) {
 
 	common := v1.ContainerCommon
 	common.Transitioning = model.GetTransitioning(common.State, common.Transitioning)
 	nativeContainer := false
 	if v1.NativeContainer[0] == 1 {
 		nativeContainer = true
+	}
+
+	if v1.RequestedHostID != nil {
+		if i, ok := v1.RequestedHostID.(float64); ok {
+			str := strconv.FormatFloat(i, 'f', -1, 64)
+			obf := s.obfuscate(r, "host", str)
+			common.RequestedHostID = obf
+		}
 	}
 
 	return &model.ContainerV2{
@@ -149,8 +160,12 @@ func ToV2(v1 *model.ContainerV1) (*model.ContainerV2, error) {
 	}, nil
 }
 
-func FromV2(v2 *model.ContainerV2) (*client.Container, error) {
+func FromV2(v2 *model.ContainerV2, s *Server, r *http.Request) (*client.Container, error) {
 	v1 := &client.Container{}
+	RequestedHostID := v2.RequestedHostID
+	if v2.RequestedHostID != nil {
+		v2.RequestedHostID = nil
+	}
 
 	if err := convertObject(v2, v1); err != nil {
 		return nil, err
@@ -159,6 +174,12 @@ func FromV2(v2 *model.ContainerV2) (*client.Container, error) {
 	v1.ImageUuid = v2.Image
 	v1.WorkingDir = v2.WorkDir
 	v1.MemorySwap = v2.MemSwap
+	v1.LogConfig = v2.Logging
+	if RequestedHostID != nil {
+		if i, ok := RequestedHostID.(string); ok {
+			v1.RequestedHostId = i
+		}
+	}
 
 	if v2.StartOnCreate == false {
 		v1.StartOnCreate = false

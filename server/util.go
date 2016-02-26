@@ -23,16 +23,7 @@ func (s *Server) parseData(dataStr string, obj interface{}) error {
 		return err
 	}
 
-	fieldsM, err := json.Marshal(data.Fields)
-	if err != nil {
-		return err
-	}
-
-	if err = json.Unmarshal(fieldsM, &obj); err != nil {
-		return err
-	}
-
-	return nil
+	return convertObject(data.Fields, &obj)
 }
 
 func convertObject(obj1 interface{}, obj2 interface{}) error {

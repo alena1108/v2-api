@@ -8,59 +8,59 @@ import (
 type ContainerCommon struct {
 	Common
 	AllocationState    string                      `json:"allocationState" yaml:"allocation_state"`
-	Build              *client.DockerBuild         `json:"build" yaml:"build" schema:",create=true,type=dockerBuild"`
-	CapAdd             []string                    `json:"capAdd" yaml:"cap_add" schema:",create=true"`
-	CapDrop            []string                    `json:"capDrop" yaml:"cap_drop" schema:",create=true"`
-	Command            []string                    `json:"command" yaml:"command" schema:",create=true"schema:",create=true"`
+	Build              *client.DockerBuild         `json:"build" yaml:"build" schema:"create=true,type=dockerBuild"`
+	CapAdd             []string                    `json:"capAdd" yaml:"cap_add" schema:"create=true"`
+	CapDrop            []string                    `json:"capDrop" yaml:"cap_drop" schema:"create=true"`
+	Command            []string                    `json:"command" yaml:"command" schema:"create=true"schema:"create=true"`
 	ContainerLinks     map[string]interface{}      `json:"containerLinks" yaml:"container_links"`
 	CPUSet             string                      `json:"cpuSet" yaml:"cpu_set"`
-	CPUShares          int64                       `json:"cpuShares" yaml:"cpu_shares" schema:",create=true"`
+	CPUShares          int64                       `json:"cpuShares" yaml:"cpu_shares" schema:"create=true"`
 	CreateIndex        int64                       `json:"createIndex" yaml:"create_index"`
-	DataVolumeMounts   map[string]interface{}      `json:"dataVolumeMounts" yaml:"data_volume_mounts" schema:",create=true"`
+	DataVolumeMounts   map[string]interface{}      `json:"dataVolumeMounts" yaml:"data_volume_mounts" schema:"create=true"`
 	DataVolumes        []string                    `json:"dataVolumes" yaml:"data_volumes"`
 	DataVolumesFrom    []string                    `json:"dataVolumesFrom" yaml:"data_volumes_from"`
 	DeploymentUnitUUID string                      `json:"deploymentUnitUuid" yaml:"deployment_unit_uuid"`
-	Devices            []string                    `json:"devices" yaml:"devices"`
-	DNS                []string                    `json:"dns" yaml:"dns"`
-	DNSSearch          []string                    `json:"dnsSearch" yaml:"dns_search"`
-	DomainName         string                      `json:"domainName" yaml:"domain_name" schema:",create=true"`
-	EntryPoint         []string                    `json:"entryPoint" yaml:"entry_point" schema:",create=true"`
-	Environment        map[string]interface{}      `json:"environment" yaml:"environment" schema:",create=true"`
-	Expose             []string                    `json:"expose" yaml:"expose"`
+	Devices            []string                    `json:"devices" yaml:"devices" schema:"create=true"`
+	DNS                []string                    `json:"dns" yaml:"dns" schema:"create=true"`
+	DNSSearch          []string                    `json:"dnsSearch" yaml:"dns_search" schema:"create=true"`
+	DomainName         string                      `json:"domainName" yaml:"domain_name" schema:"create=true"`
+	EntryPoint         []string                    `json:"entryPoint" yaml:"entry_point" schema:"create=true"`
+	Environment        map[string]interface{}      `json:"environment" yaml:"environment" schema:"create=true"`
+	Expose             []string                    `json:"expose" yaml:"expose" schema:"create=true"`
 	ExternalID         string                      `json:"externalId" yaml:"external_id"`
 	ExtraHosts         []string                    `json:"extraHosts" yaml:"extra_hosts"`
 	FirstRunning       string                      `json:"firstRunning" yaml:"first_running"`
-	HealthCheck        *client.InstanceHealthCheck `json:"healthCheck" yaml:"health_check" schema:",create=true,type=instanceHealthCheck,nullable=true"`
+	HealthCheck        *client.InstanceHealthCheck `json:"healthCheck" yaml:"health_check" schema:"create=true,type=instanceHealthCheck,nullable=true"`
 	HealthState        string                      `json:"healthState" yaml:"health_state"`
-	Hostname           string                      `json:"hostname" yaml:"hostname" schema:",create=true"`
-	Labels             map[string]interface{}      `json:"labels" yaml:"labels"`
-	Memory             int64                       `json:"memory" yaml:"memory" `
+	Hostname           string                      `json:"hostname" yaml:"hostname" schema:"create=true"`
+	Labels             map[string]interface{}      `json:"labels" yaml:"labels" schema:"create=true"`
+	Memory             int64                       `json:"memory" yaml:"memory" schema:"create=true"`
 	NetworkMode        string                      `json:"networkMode" yaml:"network_mode"`
-	PidMode            string                      `json:"pidMode" yaml:"pid_mode"`
-	Ports              []string                    `json:"ports" yaml:"ports"`
-	Privileged         bool                        `json:"privileged" yaml:"privileged" schema:",create=true"`
+	PidMode            string                      `json:"pidMode" yaml:"pid_mode" schema:"create=true"`
+	Ports              []string                    `json:"ports" yaml:"ports" schema:"create=true"`
+	Privileged         bool                        `json:"privileged" yaml:"privileged" schema:"create=true"`
 	PublishAllPorts    bool                        `json:"publishAllPorts" yaml:"publish_all_ports"`
-	ReadOnly           bool                        `json:"readOnly" yaml:"read_only"`
-	//RequestedHostId    []interface{}          `json:"requestedHostId" yaml:"requested_host_id"`
-	RequestedIPAddress string                `json:"requestedIpAddress" yaml:"requested_ip_address"`
-	RestartPolicy      *client.RestartPolicy `json:"restartPolicy" yaml:"restart_policy" schema:",create=true,type=restartPolicy,nullable=true"`
-	SecurityOpt        []string              `json:"securityOpt" yaml:"security_opt"`
-	StartCount         int64                 `json:"startCount" yaml:"start_count"`
-	StartOnCreate      bool                  `json:"startOnCreate" yaml:"start_on_create" schema:",create=true"`
-	StdinOpen          bool                  `json:"stdinOpen" yaml:"stdin_open" schema:",create=true"`
-	Token              string                `json:"token" yaml:"token"`
-	Tty                bool                  `json:"tty" yaml:"tty" schema:",create=true"`
-	User               string                `json:"user" yaml:"user" schema:",create=true"`
-	VolumeDriver       string                `json:"volumeDriver" yaml:"volume_driver"`
+	ReadOnly           bool                        `json:"readOnly" yaml:"read_only" schema:"create=true"`
+	RequestedIPAddress string                      `json:"requestedIpAddress" yaml:"requested_ip_address"`
+	RestartPolicy      *client.RestartPolicy       `json:"restartPolicy" yaml:"restart_policy" schema:"create=true,type=restartPolicy,nullable=true"`
+	SecurityOpt        []string                    `json:"securityOpt" yaml:"security_opt" schema:"create=true"`
+	StartCount         int64                       `json:"startCount" yaml:"start_count" `
+	StartOnCreate      bool                        `json:"startOnCreate" yaml:"start_on_create" schema:"create=true"`
+	StdinOpen          bool                        `json:"stdinOpen" yaml:"stdin_open" schema:"create=true"`
+	Token              string                      `json:"token" yaml:"token"`
+	Tty                bool                        `json:"tty" yaml:"tty" schema:"create=true"`
+	User               string                      `json:"user" yaml:"user" schema:"create=true"`
+	VolumeDriver       string                      `json:"volumeDriver" yaml:"volume_driver" schema:"create=true"`
+	RequestedHostID    interface{}                 `json:"requestedHostId" yaml:"requested_host_id" schema:"create=true, type=reference[host]"`
 }
 
 type ContainerV2 struct {
 	client.Resource
 	ContainerCommon
 	MemSwap         int64             `json:"memSwap" yaml:"mem_swap"`
-	Image           string            `json:"image" yaml:"image" schema:",create=true,update=true,nullable=true"`
+	Image           string            `json:"image" yaml:"image" schema:"create=true,update=true,nullable=true"`
 	WorkDir         string            `json:"workDir" yaml:"work_dir"`
-	Logging         *client.LogConfig `json:"logging" yaml:"logging"`
+	Logging         *client.LogConfig `json:"logging" yaml:"logging" schema:"create=true,type=logConfig"`
 	Revision        string            `json:"revision" yaml:"revision"`
 	IPAddress       string            `json:"ipAddress" yaml:"ip_address"`
 	NativeContainer bool              `json:"nativeContainer" yaml:"native_container"`
@@ -71,7 +71,7 @@ type ContainerV1 struct {
 	ContainerCommon
 	MemorySwap       int64             `json:"memorySwap" yaml:"memory_swap"`
 	ImageUUID        string            `json:"imageUuid" yaml:"image_uuid"`
-	WorkingDir       string            `json:"workingDir" yaml:"working_dir" schema:",create=true"`
+	WorkingDir       string            `json:"workingDir" yaml:"working_dir" schema:"create=true"`
 	LogConfig        *client.LogConfig `json:"logConfig" yaml:"log_config"`
 	Version          string            `json:"version" yaml:"version"`
 	PrimaryIPAddress string            `json:"primaryIpAddress" yaml:"primary_ip_address"`

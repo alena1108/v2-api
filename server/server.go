@@ -11,10 +11,6 @@ import (
 	"github.com/rancher/go-rancher/client"
 )
 
-const (
-	obfuscator = "1i"
-)
-
 type Server struct {
 	DB                 *sqlx.DB
 	driver, driverName string
@@ -81,14 +77,19 @@ func (s *Server) writeResponse(err error, r *http.Request, data interface{}) err
 }
 
 func (s *Server) deobfuscate(r *http.Request, typeName string, id string) string {
-	return strings.TrimPrefix(id, obfuscator)
+	return strings.TrimPrefix(id, getObfuscator(typeName))
+}
+
+func getObfuscator(typeName string) string {
+	obfuscator := "1"
+	return obfuscator + typeName[0:1]
 }
 
 func (s *Server) obfuscate(r *http.Request, typeName string, id string) string {
 	if id == "" {
 		return ""
 	}
-	return obfuscator + id
+	return getObfuscator(typeName) + id
 }
 
 func (s *Server) getClient(r *http.Request) (*client.RancherClient, error) {

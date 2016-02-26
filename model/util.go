@@ -100,7 +100,7 @@ func typeToFields(t reflect.Type) map[string]client.Field {
 		schemaType := ""
 		var defaultValue interface{}
 		tagParts := strings.Split(typeField.Tag.Get(schemaTagName), ",")
-		for _, tag := range tagParts[1:] {
+		for _, tag := range tagParts[0:] {
 			switch {
 			case strings.HasPrefix(tag, "create"):
 				create = parseTagBool(tag)
