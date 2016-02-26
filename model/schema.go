@@ -19,9 +19,10 @@ func NewSchema() *client.Schemas {
 	logConfig.CollectionMethods = []string{}
 	healthCheck := schemas.AddType("instanceHealthCheck", client.InstanceHealthCheck{})
 	healthCheck.CollectionMethods = []string{}
-
 	strategy := schemas.AddType("recreateOnQuorumStrategyConfig", client.RecreateOnQuorumStrategyConfig{})
 	strategy.CollectionMethods = []string{}
+	dockerBuild := schemas.AddType("dockerBuild", client.DockerBuild{})
+	dockerBuild.CollectionMethods = []string{}
 
 	return schemas
 }

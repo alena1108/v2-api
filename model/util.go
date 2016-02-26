@@ -131,7 +131,7 @@ func typeToFields(t reflect.Type) map[string]client.Field {
 			case strings.HasPrefix(fieldString, "int") || strings.HasPrefix(fieldString, "uint"):
 				schemaField.Type = "int"
 			case fieldString == "bool":
-				schemaField.Type = fieldString
+				schemaField.Type = "boolean"
 			case fieldString == "float32" || fieldString == "float64":
 				schemaField.Type = "float"
 			case fieldString == "string":

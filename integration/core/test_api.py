@@ -19,22 +19,43 @@ def test_container_create(client):
                     "interval": 4, "healthyThreshold": 5,
                     "unhealthyThreshold": 6, "requestLine": "index.html",
                     "port": 200}
+    build={
+        'dockerfile': 'test/Dockerfile',
+        'remote': 'http://example.com',
+        'rm': True,
+    }
     c = client.create_container(image="docker:ubuntu:latest",
-     name="tt",
+     name="foo",
      restartPolicy=restart_policy,
-     startOnCreate=True,
      tty=True,
-     healthCheck=health_check)
+     startOnCreate=True,
+     healthCheck=health_check,
+     requestedIpAddress="10.1.1.19",
+     privileged=True,
+     domainName="rancher.io",
+     #memory=8000000,
+     stdinOpen=True,
+     entryPoint=["/bin/sh", "-c"],
+     cpuShares=400,
+     cpuSet="0",
+     workDir="/",
+     hostname="test",
+     user="test",
+     environment={'TEST_FILE': "/etc/testpath.conf"},
+     command=['sleep', '42'],
+     capAdd=["SYS_MODULE"],
+     capDrop=["SYS_MODULE"],
+     build=build)
 
     c = client.wait_success(c)
     
     assert c.image == "docker:ubuntu:latest"
-    assert c.name == "tt"
+    assert c.name == "foo"
     assert c.restartPolicy is not None
     assert c.restartPolicy.name == 'on-failure'
     assert c.restartPolicy.maximumRetryCount == 2
     assert c.tty == True
-    assert c.state == "running"
+    assert c.state != ""
     assert c.healthCheck is not None
     assert c.healthCheck.name == "check1" 
     assert c.healthCheck.responseTimeout == 3
@@ -43,10 +64,29 @@ def test_container_create(client):
     assert c.healthCheck.unhealthyThreshold == 6
     assert c.healthCheck.requestLine == "index.html"
     assert c.healthCheck.port == 200
-    assert c.startCount == 0
+    assert c.startCount >=0
     assert c.revision == "0"
     assert c.startOnCreate == True
-    assert c.ipAddress != ""
-    assert c.firstRunning != ""
+    #assert c.ipAddress != ""
+    #assert c.firstRunning != ""
     assert c.nativeContainer == False
+    assert c.token != ""
+    assert c.externalId != ""
+    #assert c.requestedIpAddress != ""
+    assert c.privileged is True
+    assert c.domainName == "rancher.io"
+    #assert c.memory == 8000000
+    assert c.stdinOpen is True
+    assert c.entryPoint == ["/bin/sh", "-c"]
+    assert c.cpuShares == 400
+    assert c.cpuSet == "0"
+    assert c.workDir == "/"
+    assert c.hostname == "test"
+    assert c.user == "test"
+    assert c.environment == {'TEST_FILE': "/etc/testpath.conf"}
+    #assert c.command == ['sleep', '42']
+    assert c.publishAllPorts is not None
+    assert c.capAdd == ["SYS_MODULE"]
+    assert c.capDrop == ["SYS_MODULE"]
+    assert c.build.dockerfile == 'test/Dockerfile'
 
