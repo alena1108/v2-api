@@ -6,7 +6,6 @@ import (
 	"github.com/rancher/go-rancher/client"
 	"github.com/rancher/v2-api/model"
 	"net/http"
-	"strconv"
 )
 
 type Container struct{}
@@ -131,7 +130,6 @@ func (s *Server) getContainer(rw http.ResponseWriter, r *http.Request, id string
 }
 
 func ToV2(v1 *model.ContainerV1, s *Server, r *http.Request) (*model.ContainerV2, error) {
-
 	common := v1.ContainerCommon
 	common.Transitioning = model.GetTransitioning(common.State, common.Transitioning)
 	nativeContainer := false
@@ -140,11 +138,15 @@ func ToV2(v1 *model.ContainerV1, s *Server, r *http.Request) (*model.ContainerV2
 	}
 
 	if v1.RequestedHostID != nil {
-		if i, ok := v1.RequestedHostID.(float64); ok {
-			str := strconv.FormatFloat(i, 'f', -1, 64)
-			obf := s.obfuscate(r, "host", str)
-			common.RequestedHostID = obf
+		common.RequestedHostID = s.obfuscateGenericID(r, "host", v1.RequestedHostID)
+	}
+
+	if v1.DataVolumesFrom != nil {
+		var dataV []interface{}
+		for _, v := range v1.DataVolumesFrom {
+			dataV = append(dataV, s.obfuscateGenericID(r, "instance", v))
 		}
+		common.DataVolumesFrom = dataV
 	}
 
 	return &model.ContainerV2{
@@ -162,10 +164,6 @@ func ToV2(v1 *model.ContainerV1, s *Server, r *http.Request) (*model.ContainerV2
 
 func FromV2(v2 *model.ContainerV2, s *Server, r *http.Request) (*client.Container, error) {
 	v1 := &client.Container{}
-	RequestedHostID := v2.RequestedHostID
-	if v2.RequestedHostID != nil {
-		v2.RequestedHostID = nil
-	}
 
 	if err := convertObject(v2, v1); err != nil {
 		return nil, err
@@ -175,11 +173,6 @@ func FromV2(v2 *model.ContainerV2, s *Server, r *http.Request) (*client.Containe
 	v1.WorkingDir = v2.WorkDir
 	v1.MemorySwap = v2.MemSwap
 	v1.LogConfig = v2.Logging
-	if RequestedHostID != nil {
-		if i, ok := RequestedHostID.(string); ok {
-			v1.RequestedHostId = i
-		}
-	}
 
 	if v2.StartOnCreate == false {
 		v1.StartOnCreate = false

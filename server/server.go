@@ -9,6 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rancher/go-rancher/api"
 	"github.com/rancher/go-rancher/client"
+	"strconv"
 )
 
 type Server struct {
@@ -103,4 +104,12 @@ func (s *Server) parseInputParameters(r *http.Request, obj interface{}) error {
 	decoder.Decode(&obj)
 
 	return nil
+}
+
+func (s *Server) obfuscateGenericID(r *http.Request, typeName string, id interface{}) string {
+	if i, ok := id.(float64); ok {
+		str := strconv.FormatFloat(i, 'f', -1, 64)
+		return s.obfuscate(r, typeName, str)
+	}
+	return ""
 }

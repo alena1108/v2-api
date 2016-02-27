@@ -17,8 +17,8 @@ type ContainerCommon struct {
 	CPUShares          int64                       `json:"cpuShares" yaml:"cpu_shares" schema:"create=true"`
 	CreateIndex        int64                       `json:"createIndex" yaml:"create_index"`
 	DataVolumeMounts   map[string]interface{}      `json:"dataVolumeMounts" yaml:"data_volume_mounts" schema:"create=true"`
-	DataVolumes        []string                    `json:"dataVolumes" yaml:"data_volumes"`
-	DataVolumesFrom    []string                    `json:"dataVolumesFrom" yaml:"data_volumes_from"`
+	DataVolumes        []string                    `json:"dataVolumes" yaml:"data_volumes" schema:"create=true"`
+	DataVolumesFrom    []interface{}               `json:"dataVolumesFrom" yaml:"data_volumes_from" schema:"create=true,type=array[reference[instance]]"`
 	DeploymentUnitUUID string                      `json:"deploymentUnitUuid" yaml:"deployment_unit_uuid"`
 	Devices            []string                    `json:"devices" yaml:"devices" schema:"create=true"`
 	DNS                []string                    `json:"dns" yaml:"dns" schema:"create=true"`
@@ -51,7 +51,7 @@ type ContainerCommon struct {
 	Tty                bool                        `json:"tty" yaml:"tty" schema:"create=true"`
 	User               string                      `json:"user" yaml:"user" schema:"create=true"`
 	VolumeDriver       string                      `json:"volumeDriver" yaml:"volume_driver" schema:"create=true"`
-	RequestedHostID    interface{}                 `json:"requestedHostId" yaml:"requested_host_id" schema:"create=true, type=reference[host]"`
+	RequestedHostID    interface{}                 `json:"requestedHostId" yaml:"requested_host_id" schema:"create=true,type=reference[host]"`
 }
 
 type ContainerV2 struct {

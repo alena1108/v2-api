@@ -131,10 +131,19 @@ def test_container_create_extra(client):
     assert c.securityOpt == ["foo"]
     assert c.logging.driver == "syslog"
 
-def test_container_requested(client):
+def test_container_requested_host_volumes(client):
+    c1 = client.create_container(image="docker:ubuntu:latest",name="foo")
+
     c = client.create_container(image="docker:ubuntu:latest",
      name="foo",
-     requestedHostId="1h1")
-    
+     requestedHostId="1h1",
+     dataVolumes=['/foo'],
+     dataVolumesFrom=[c1.id])
+
+    c = client.wait_success(c)
     c = client.wait_success(c)
     assert c.requestedHostId == "1h1"
+    assert c.dataVolumes == ['/foo']
+    assert c.dataVolumesFrom == [c1.id]
+
+        
