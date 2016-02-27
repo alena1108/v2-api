@@ -34,7 +34,7 @@ type ContainerCommon struct {
 	HealthState        string                      `json:"healthState" yaml:"health_state"`
 	Hostname           string                      `json:"hostname" yaml:"hostname" schema:"create=true"`
 	Labels             map[string]interface{}      `json:"labels" yaml:"labels" schema:"create=true"`
-	Memory             int64                       `json:"memory" yaml:"memory" schema:"create=true"`
+	Memory             int64                       `json:"memory" yaml:"memory" schema:"create=true,type=int"`
 	NetworkMode        string                      `json:"networkMode" yaml:"network_mode"`
 	PidMode            string                      `json:"pidMode" yaml:"pid_mode" schema:"create=true"`
 	Ports              []string                    `json:"ports" yaml:"ports" schema:"create=true"`
@@ -54,10 +54,10 @@ type ContainerCommon struct {
 	RequestedHostID    interface{}                 `json:"requestedHostId" yaml:"requested_host_id" schema:"create=true,type=reference[host]"`
 }
 
-type ContainerV2 struct {
+type Container struct {
 	client.Resource
 	ContainerCommon
-	MemSwap         int64             `json:"memSwap" yaml:"mem_swap"`
+	MemSwap         int64             `json:"memSwap" yaml:"mem_swap" schema:"create=true,type=int"`
 	Image           string            `json:"image" yaml:"image" schema:"create=true,update=true,nullable=true"`
 	WorkDir         string            `json:"workDir" yaml:"work_dir"`
 	Logging         *client.LogConfig `json:"logging" yaml:"logging" schema:"create=true,type=logConfig"`
@@ -66,25 +66,26 @@ type ContainerV2 struct {
 	NativeContainer bool              `json:"nativeContainer" yaml:"native_container"`
 }
 
-type ContainerV1 struct {
+type ContainerDBProxy struct {
 	client.Resource
 	ContainerCommon
-	MemorySwap       int64             `json:"memorySwap" yaml:"memory_swap"`
-	ImageUUID        string            `json:"imageUuid" yaml:"image_uuid"`
-	WorkingDir       string            `json:"workingDir" yaml:"working_dir" schema:"create=true"`
-	LogConfig        *client.LogConfig `json:"logConfig" yaml:"log_config"`
-	Version          string            `json:"version" yaml:"version"`
-	PrimaryIPAddress string            `json:"primaryIpAddress" yaml:"primary_ip_address"`
-	NativeContainer  []uint8           `json:"nativeContainer" yaml:"native_container"`
+	MemorySwap         int64             `json:"memorySwap" yaml:"memory_swap"`
+	ImageUUID          string            `json:"imageUuid" yaml:"image_uuid"`
+	WorkingDir         string            `json:"workingDir" yaml:"working_dir" schema:"create=true"`
+	LogConfig          *client.LogConfig `json:"logConfig" yaml:"log_config"`
+	Version            string            `json:"version" yaml:"version"`
+	PrimaryIPAddress   string            `json:"primaryIpAddress" yaml:"primary_ip_address"`
+	NativeContainer    []uint8           `json:"nativeContainer" yaml:"native_container"`
+	NetworkContainerID interface{}       `json:"networkContainerId" yaml:"network_container_id"`
 }
 
 type ContainerList struct {
 	client.Collection
-	Data []ContainerV2 `json:"data"`
+	Data []Container `json:"data"`
 }
 
 func getContainerSchema(schemas *client.Schemas) {
-	container := AddType(schemas, "container", ContainerV2{})
+	container := AddType(schemas, "container", Container{})
 	container.ResourceActions = map[string]client.Action{
 		"create": client.Action{
 			Output: "container",

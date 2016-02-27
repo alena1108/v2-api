@@ -17,11 +17,6 @@ type Server struct {
 	driver, driverName string
 }
 
-type SchemaConvertor interface {
-	FromSchema(obj interface{}) (interface{}, error)
-	ToSchema(obj interface{}) (interface{}, error)
-}
-
 func New(driver, driverName string) (*Server, error) {
 	db, err := sqlx.Open(driver, driverName)
 	if err != nil {
@@ -109,6 +104,9 @@ func (s *Server) parseInputParameters(r *http.Request, obj interface{}) error {
 func (s *Server) obfuscateGenericID(r *http.Request, typeName string, id interface{}) string {
 	if i, ok := id.(float64); ok {
 		str := strconv.FormatFloat(i, 'f', -1, 64)
+		return s.obfuscate(r, typeName, str)
+	} else if i, ok := id.(int64); ok {
+		str := strconv.FormatInt(i, 10)
 		return s.obfuscate(r, typeName, str)
 	}
 	return ""

@@ -84,8 +84,8 @@ def test_container_create_extra(client):
      tty=True,
      privileged=True,
      domainName="rancher.io",
-     #memory=8000000,
-     #c.memSwap == 100
+     memory=800000,
+     memSwap=100,
      stdinOpen=True,
      entryPoint=["/bin/sh", "-c"],
      cpuShares=400,
@@ -109,8 +109,8 @@ def test_container_create_extra(client):
     
     assert c.privileged is True
     assert c.domainName == "rancher.io"
-    #assert c.memory == 8000000
-    #assert c.memSwap == 100
+    assert c.memory == 800000
+    assert c.memSwap == 100
     assert c.stdinOpen is True
     assert c.entryPoint == ["/bin/sh", "-c"]
     assert c.cpuShares == 400
@@ -138,12 +138,14 @@ def test_container_requested_host_volumes(client):
      name="foo",
      requestedHostId="1h1",
      dataVolumes=['/foo'],
-     dataVolumesFrom=[c1.id])
+     dataVolumesFrom=[c1.id],
+     networkMode="container:" + c1.id)
 
     c = client.wait_success(c)
     c = client.wait_success(c)
     assert c.requestedHostId == "1h1"
     assert c.dataVolumes == ['/foo']
     assert c.dataVolumesFrom == [c1.id]
+    assert c.networkMode == "container:" + c1.id
 
         
