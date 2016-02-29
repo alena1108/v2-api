@@ -10,7 +10,7 @@ func NewSchema() *client.Schemas {
 	apiVersion := schemas.AddType("apiVersion", client.Resource{})
 	apiVersion.CollectionMethods = []string{}
 	schemas.AddType("schema", client.Schema{})
-	schemas.AddType("service", Service{})
+	getServiceSchema(schemas)
 	getContainerSchema(schemas)
 
 	restartPolicy := schemas.AddType("restartPolicy", client.RestartPolicy{})
@@ -23,6 +23,11 @@ func NewSchema() *client.Schemas {
 	strategy.CollectionMethods = []string{}
 	dockerBuild := schemas.AddType("dockerBuild", client.DockerBuild{})
 	dockerBuild.CollectionMethods = []string{}
+
+	restartStrategy := schemas.AddType("rollingRestartStrategy", client.RollingRestartStrategy{})
+	restartStrategy.CollectionMethods = []string{}
+	restart := schemas.AddType("serviceRestart", client.ServiceRestart{})
+	restart.CollectionMethods = []string{}
 
 	return schemas
 }

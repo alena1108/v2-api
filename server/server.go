@@ -85,6 +85,7 @@ func (s *Server) obfuscate(r *http.Request, typeName string, id string) string {
 	if id == "" {
 		return ""
 	}
+
 	return getObfuscator(typeName) + id
 }
 
@@ -108,6 +109,8 @@ func (s *Server) obfuscateGenericID(r *http.Request, typeName string, id interfa
 	} else if i, ok := id.(int64); ok {
 		str := strconv.FormatInt(i, 10)
 		return s.obfuscate(r, typeName, str)
+	} else if i, ok := id.(string); ok {
+		return s.obfuscate(r, typeName, i)
 	}
 	return ""
 }

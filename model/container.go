@@ -93,6 +93,6 @@ func getContainerSchema(schemas *client.Schemas) {
 	}
 	container.CollectionMethods = []string{"GET", "POST"}
 	container.ResourceMethods = []string{"GET"}
-	//TODO populate links with actions
+	//TODO populate links/actions
 	container.Actions = map[string]string{}
 }
