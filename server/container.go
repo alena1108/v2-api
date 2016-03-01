@@ -48,7 +48,7 @@ func (s *Server) ContainerCreate(rw http.ResponseWriter, r *http.Request) error 
 		return err
 	}
 
-	v1, err := s.ContainerFromV2ToV1(v2, r)
+	v1, err := s.ContainerV2ToV1(v2, r)
 	if err != nil {
 		return err
 	}
@@ -166,7 +166,7 @@ func (s *Server) ContainerDBProxyToV2(db *model.ContainerDBProxy, r *http.Reques
 	}, nil
 }
 
-func (s *Server) ContainerFromV2ToV1(v2 *model.Container, r *http.Request) (*client.Container, error) {
+func (s *Server) ContainerV2ToV1(v2 *model.Container, r *http.Request) (*client.Container, error) {
 	v1 := &client.Container{}
 
 	if err := convertObject(v2, v1); err != nil {

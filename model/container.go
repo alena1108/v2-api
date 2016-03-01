@@ -7,6 +7,7 @@ import (
 
 type ContainerCommon struct {
 	Common
+	Name               string                      `json:"name" schema:"create=true,required=true"`
 	AllocationState    string                      `json:"allocationState" yaml:"allocation_state"`
 	Build              *client.DockerBuild         `json:"build" yaml:"build" schema:"create=true,type=dockerBuild"`
 	CapAdd             []string                    `json:"capAdd" yaml:"cap_add" schema:"create=true"`

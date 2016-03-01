@@ -152,7 +152,42 @@ func (s *Server) ServiceFromV2ToV1(v2 *model.Service, r *http.Request) (*client.
 	v1.SelectorLink = v2.LinkSelector
 	v1.SelectorContainer = v2.ContainerSelector
 	v1.RetainIp = v2.RetainIPAddress
+	lc, slc, err := s.ContainerTemplatesToLaunchConfig(v2, r)
+	if err != nil {
+		return nil, err
+	}
+	v1.LaunchConfig = lc
+	v1.SecondaryLaunchConfigs = slc
 	logrus.Infof("service vip %v", v2.AssignServiceIPAddress)
 
 	return v1, nil
+}
+
+func (s *Server) ContainerTemplatesToLaunchConfig(v2 *model.Service, r *http.Request) (*client.LaunchConfig, []interface{}, error) {
+	var plc *client.LaunchConfig
+	slc := make([]*client.SecondaryLaunchConfig, 0)
+	if v2.ContainerTemplates != nil {
+		for i, template := range v2.ContainerTemplates {
+			v1, err := s.ContainerV2ToV1(&template, r)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			if i == 0 {
+				lc := &client.LaunchConfig{}
+				if err = convertObject(v1, lc); err != nil {
+					return nil, nil, err
+				}
+				plc = lc
+			} else {
+				lc := &client.SecondaryLaunchConfig{}
+				if err = convertObject(v1, lc); err != nil {
+					return nil, nil, err
+				}
+				slc = append(slc, lc)
+			}
+		}
+	}
+
+	return plc, slc, nil
 }
