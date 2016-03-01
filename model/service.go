@@ -40,12 +40,13 @@ type Service struct {
 type ServiceDBProxy struct {
 	client.Resource
 	ServiceCommon
-	EnvironmentID     string            `json:"environmentId"`
-	Vip               string            `json:"vip"`
-	SelectorLink      string            `json:"selectorLink"`
-	SelectorContainer string            `json:"selectorContainer"`
-	RetainIP          bool              `json:"retainIp"`
-	LaunchConfig      *client.Container `json:"launchConfig"`
+	EnvironmentID          string              `json:"environmentId"`
+	Vip                    string              `json:"vip"`
+	SelectorLink           string              `json:"selectorLink"`
+	SelectorContainer      string              `json:"selectorContainer"`
+	RetainIP               bool                `json:"retainIp"`
+	LaunchConfig           *client.Container   `json:"launchConfig"`
+	SecondaryLaunchConfigs []*client.Container `json:"secondaryLaunchConfigs"`
 }
 
 type ServiceList struct {

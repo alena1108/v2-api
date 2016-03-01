@@ -212,5 +212,19 @@ func (s *Server) ContainerLaunchConfigsToTemplates(db *model.ServiceDBProxy, r *
 		templates = append(templates, template)
 	}
 
+	if db.SecondaryLaunchConfigs != nil {
+		for _, sc := range db.SecondaryLaunchConfigs {
+			dbC := &model.ContainerDBProxy{}
+			if err := convertObject(sc, &dbC); err != nil {
+				return nil, err
+			}
+			template, err := s.ContainerDBProxyToV2(dbC, r)
+			if err != nil {
+				return nil, err
+			}
+			templates = append(templates, template)
+		}
+	}
+
 	return templates, nil
 }

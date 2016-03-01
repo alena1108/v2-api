@@ -52,7 +52,7 @@ def test_service_lc(client):
     name = getName()
     s = client.create_service(name=name,
                               stackId=get_stack_id(),
-                              containerTemplates=[lc])
+                              containerTemplates=[lc,lc])
 
     s = client.wait_success(s)
 
@@ -60,4 +60,6 @@ def test_service_lc(client):
     assert s.stackId == get_stack_id()
     assert s.name == name
     assert s.containerTemplates is not None
+    assert len(s.containerTemplates) == 2
     assert s.containerTemplates[0].image == "docker:ubuntu:latest"
+    assert s.containerTemplates[1].image == "docker:ubuntu:latest"
