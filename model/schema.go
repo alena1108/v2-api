@@ -29,5 +29,14 @@ func NewSchema() *client.Schemas {
 	restart := schemas.AddType("serviceRestart", client.ServiceRestart{})
 	restart.CollectionMethods = []string{}
 
+	upgrade := schemas.AddType("serviceUpgrade", ServiceUpgrade{})
+	upgrade.CollectionMethods = []string{}
+
+	toService := schemas.AddType("toServiceUpgradeStrategy", client.InServiceUpgradeStrategy{})
+	toService.CollectionMethods = []string{}
+
+	inService := schemas.AddType("inServiceUpgradeStrategy", InServiceUpgradeStrategy{})
+	inService.CollectionMethods = []string{}
+
 	return schemas
 }

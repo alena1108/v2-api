@@ -11,7 +11,7 @@ def client():
 
 
 def get_stack_id():
-    return "1s1"
+    return "1s3"
 
 
 def getName():
@@ -48,11 +48,12 @@ def test_service_create_basic(client):
 
 
 def test_service_lc(client):
-    lc = {"image": "docker:ubuntu:latest"}
     name = getName()
+    lc1 = {"image": "docker:ubuntu:latest", "name": name}
+    lc2 = {"image": "docker:ubuntu:latest", "name": getName()}
     s = client.create_service(name=name,
                               stackId=get_stack_id(),
-                              containerTemplates=[lc,lc])
+                              containerTemplates=[lc1,lc2])
 
     s = client.wait_success(s)
 

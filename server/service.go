@@ -104,7 +104,7 @@ func (s *Server) ServiceCreate(rw http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	v1, err := s.ServiceFromV2ToV1(v2, r)
+	v1, err := s.ServiceV2ToV1(v2, r)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,12 @@ func (s *Server) ServiceDBProxyToV2(db *model.ServiceDBProxy, r *http.Request) (
 		}
 	}
 
-	templates, err := s.ContainerLaunchConfigsToTemplates(db, r)
+	templates, err := s.ContainerTemplatesDBProxyToV2(db.LaunchConfig, db.SecondaryLaunchConfigs, r)
+	if err != nil {
+		return nil, err
+	}
+
+	upgrade, err := s.UpgradeDBProxyToV2(db, r)
 	if err != nil {
 		return nil, err
 	}
@@ -144,10 +149,65 @@ func (s *Server) ServiceDBProxyToV2(db *model.ServiceDBProxy, r *http.Request) (
 		ContainerSelector:  db.SelectorContainer,
 		RetainIPAddress:    db.RetainIP,
 		ContainerTemplates: templates,
+		Upgrade:            upgrade,
 	}, nil
 }
 
-func (s *Server) ServiceFromV2ToV1(v2 *model.Service, r *http.Request) (*client.Service, error) {
+func (s *Server) UpgradeDBProxyToV2(db *model.ServiceDBProxy, r *http.Request) (*model.ServiceUpgrade, error) {
+	upgrade := &model.ServiceUpgrade{}
+
+	if db.Upgrade != nil && db.Upgrade.InServiceStrategy != nil {
+		dbProxy := &model.InServiceUpgradeStrategyDBProxy{}
+		if err := convertObject(upgrade.InServiceStrategy, dbProxy); err != nil {
+			return nil, err
+		}
+		conatinerTemplates, err := s.ContainerTemplatesDBProxyToV2(db.Upgrade.InServiceStrategy.LaunchConfig, dbProxy.SecondaryLaunchConfigs, r)
+		if err != nil {
+			return nil, err
+		}
+		previousContainerTemplates, err := s.ContainerTemplatesDBProxyToV2(dbProxy.PreviousLaunchConfig, dbProxy.PreviousSecondaryLaunchConfigs, r)
+		if err != nil {
+			return nil, err
+		}
+
+		upgrade.InServiceStrategy = &model.InServiceUpgradeStrategy{
+			InServiceUpgradeStrategyCommon: dbProxy.InServiceUpgradeStrategyCommon,
+			ContainerTemplates:             conatinerTemplates,
+			PreviousContainerTemplates:     previousContainerTemplates,
+		}
+	}
+	return upgrade, nil
+}
+
+func (s *Server) UpgradeV2ToV1(v2 *model.Service, r *http.Request) (*client.ServiceUpgrade, error) {
+
+	inServiceStrategy := &client.InServiceUpgradeStrategy{}
+	toServiceStrategy := &client.ToServiceUpgradeStrategy{}
+	if v2.Upgrade != nil {
+		if v2.Upgrade.InServiceStrategy != nil {
+			if err := convertObject(v2.Upgrade.InServiceStrategy, inServiceStrategy); err != nil {
+				return nil, err
+			}
+			lc, slc, err := s.ContainerTemplatesV2ToV1(v2, v2.Upgrade.InServiceStrategy.ContainerTemplates, r)
+			if err != nil {
+				return nil, err
+			}
+			inServiceStrategy.LaunchConfig = lc
+			inServiceStrategy.SecondaryLaunchConfigs = slc
+
+		} else if v2.Upgrade.ToServiceStrategy != nil {
+			toServiceStrategy = v2.Upgrade.ToServiceStrategy
+			toServiceStrategy.ToServiceId = s.obfuscate(r, "service", toServiceStrategy.ToServiceId)
+		}
+	}
+
+	return &client.ServiceUpgrade{
+		ToServiceStrategy: toServiceStrategy,
+		InServiceStrategy: inServiceStrategy,
+	}, nil
+}
+
+func (s *Server) ServiceV2ToV1(v2 *model.Service, r *http.Request) (*client.Service, error) {
 	v1 := &client.Service{}
 
 	if err := convertObject(v2, v1); err != nil {
@@ -158,28 +218,34 @@ func (s *Server) ServiceFromV2ToV1(v2 *model.Service, r *http.Request) (*client.
 	v1.SelectorLink = v2.LinkSelector
 	v1.SelectorContainer = v2.ContainerSelector
 	v1.RetainIp = v2.RetainIPAddress
-	lc, slc, err := s.ContainerTemplatesToLaunchConfig(v2, r)
+	lc, slc, err := s.ContainerTemplatesV2ToV1(v2, v2.ContainerTemplates, r)
 	if err != nil {
 		return nil, err
 	}
 	v1.LaunchConfig = lc
 	v1.SecondaryLaunchConfigs = slc
+
+	upgrade, err := s.UpgradeV2ToV1(v2, r)
+	if err != nil {
+		return nil, err
+	}
+	v1.Upgrade = upgrade
 	logrus.Infof("service vip %v", v2.AssignServiceIPAddress)
 
 	return v1, nil
 }
 
-func (s *Server) ContainerTemplatesToLaunchConfig(v2 *model.Service, r *http.Request) (*client.LaunchConfig, []client.SecondaryLaunchConfig, error) {
+func (s *Server) ContainerTemplatesV2ToV1(v2 *model.Service, templates []*model.Container, r *http.Request) (*client.LaunchConfig, []client.SecondaryLaunchConfig, error) {
 	var plc *client.LaunchConfig
 	var slc []client.SecondaryLaunchConfig
-	if v2.ContainerTemplates != nil {
-		for i, template := range v2.ContainerTemplates {
+	if templates != nil {
+		for _, template := range templates {
 			v1, err := s.ContainerV2ToV1(template, r)
 			if err != nil {
 				return nil, nil, err
 			}
 
-			if i == 0 {
+			if template.Name == v2.Name {
 				lc := &client.LaunchConfig{}
 				if err = convertObject(v1, lc); err != nil {
 					return nil, nil, err
@@ -187,7 +253,7 @@ func (s *Server) ContainerTemplatesToLaunchConfig(v2 *model.Service, r *http.Req
 				plc = lc
 			} else {
 				lc := client.SecondaryLaunchConfig{}
-				if err = convertObject(v1, lc); err != nil {
+				if err = convertObject(v1, &lc); err != nil {
 					return nil, nil, err
 				}
 				slc = append(slc, lc)
@@ -198,11 +264,11 @@ func (s *Server) ContainerTemplatesToLaunchConfig(v2 *model.Service, r *http.Req
 	return plc, slc, nil
 }
 
-func (s *Server) ContainerLaunchConfigsToTemplates(db *model.ServiceDBProxy, r *http.Request) ([]*model.Container, error) {
+func (s *Server) ContainerTemplatesDBProxyToV2(lc *model.ContainerDBProxy, slc []*model.ContainerDBProxy, r *http.Request) ([]*model.Container, error) {
 	var templates []*model.Container
-	if db.LaunchConfig != nil {
+	if lc != nil {
 		dbC := &model.ContainerDBProxy{}
-		if err := convertObject(db.LaunchConfig, &dbC); err != nil {
+		if err := convertObject(lc, &dbC); err != nil {
 			return nil, err
 		}
 		template, err := s.ContainerDBProxyToV2(dbC, r)
@@ -212,8 +278,8 @@ func (s *Server) ContainerLaunchConfigsToTemplates(db *model.ServiceDBProxy, r *
 		templates = append(templates, template)
 	}
 
-	if db.SecondaryLaunchConfigs != nil {
-		for _, sc := range db.SecondaryLaunchConfigs {
+	if slc != nil {
+		for _, sc := range slc {
 			dbC := &model.ContainerDBProxy{}
 			if err := convertObject(sc, &dbC); err != nil {
 				return nil, err

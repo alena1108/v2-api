@@ -10,7 +10,7 @@ import:
 - package: github.com/jmoiron/sqlx
   version: 398dd5876282499cdfd4cb8ea0f31a672abe9495
 - package: github.com/rancher/go-rancher
-  version: 0602ff76ebf77cd5b9a2a82c8a6198410729d7a5
+  version: ba28daecdf5f90a25139be9262d041ba3a0a1f44
   repo: git@github.com:alena1108/go-rancher.git
 - package: github.com/Sirupsen/logrus
   version: 57cce1ed6103dce7791881d3e69e55f90d986aa5
