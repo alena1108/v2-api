@@ -29,23 +29,23 @@ type ServiceCommon struct {
 type Service struct {
 	client.Resource
 	ServiceCommon
-	StackID            string      `json:"stackId" schema:"create=true,type=string"`
-	ServiceIPAddress   string      `json:"serviceIpAddress"`
-	LinkSelector       string      `json:"linkSelector" schema:"create=true"`
-	ContainerSelector  string      `json:"containerSelector" schema:"create=true"`
-	RetainIPAddress    bool        `json:"retainIpAddress" schema:"create=true"`
-	ContainerTemplates []Container `json:"containerTemplates" schema:"create=true, type=array[container]"`
+	StackID            string       `json:"stackId" schema:"create=true,type=string"`
+	ServiceIPAddress   string       `json:"serviceIpAddress"`
+	LinkSelector       string       `json:"linkSelector" schema:"create=true"`
+	ContainerSelector  string       `json:"containerSelector" schema:"create=true"`
+	RetainIPAddress    bool         `json:"retainIpAddress" schema:"create=true"`
+	ContainerTemplates []*Container `json:"containerTemplates" schema:"create=true, type=array[container]"`
 }
 
 type ServiceDBProxy struct {
 	client.Resource
 	ServiceCommon
-	EnvironmentID     string     `json:"environmentId"`
-	Vip               string     `json:"vip"`
-	SelectorLink      string     `json:"selectorLink"`
-	SelectorContainer string     `json:"selectorContainer"`
-	RetainIP          bool       `json:"retainIp"`
-	LaunchConfig      *Container `json:"launchConfig"`
+	EnvironmentID     string            `json:"environmentId"`
+	Vip               string            `json:"vip"`
+	SelectorLink      string            `json:"selectorLink"`
+	SelectorContainer string            `json:"selectorContainer"`
+	RetainIP          bool              `json:"retainIp"`
+	LaunchConfig      *client.Container `json:"launchConfig"`
 }
 
 type ServiceList struct {

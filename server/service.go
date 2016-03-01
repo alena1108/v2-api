@@ -130,14 +130,20 @@ func (s *Server) ServiceDBProxyToV2(db *model.ServiceDBProxy, r *http.Request) (
 		}
 	}
 
+	templates, err := s.ContainerLaunchConfigsToTemplates(db, r)
+	if err != nil {
+		return nil, err
+	}
+
 	return &model.Service{
-		Resource:          db.Resource,
-		ServiceCommon:     common,
-		StackID:           s.obfuscateGenericID(r, "stack", db.EnvironmentID),
-		ServiceIPAddress:  db.Vip,
-		LinkSelector:      db.SelectorLink,
-		ContainerSelector: db.SelectorContainer,
-		RetainIPAddress:   db.RetainIP,
+		Resource:           db.Resource,
+		ServiceCommon:      common,
+		StackID:            s.obfuscateGenericID(r, "stack", db.EnvironmentID),
+		ServiceIPAddress:   db.Vip,
+		LinkSelector:       db.SelectorLink,
+		ContainerSelector:  db.SelectorContainer,
+		RetainIPAddress:    db.RetainIP,
+		ContainerTemplates: templates,
 	}, nil
 }
 
@@ -163,12 +169,12 @@ func (s *Server) ServiceFromV2ToV1(v2 *model.Service, r *http.Request) (*client.
 	return v1, nil
 }
 
-func (s *Server) ContainerTemplatesToLaunchConfig(v2 *model.Service, r *http.Request) (*client.LaunchConfig, []interface{}, error) {
+func (s *Server) ContainerTemplatesToLaunchConfig(v2 *model.Service, r *http.Request) (*client.LaunchConfig, []client.SecondaryLaunchConfig, error) {
 	var plc *client.LaunchConfig
-	slc := make([]*client.SecondaryLaunchConfig, 0)
+	var slc []client.SecondaryLaunchConfig
 	if v2.ContainerTemplates != nil {
 		for i, template := range v2.ContainerTemplates {
-			v1, err := s.ContainerV2ToV1(&template, r)
+			v1, err := s.ContainerV2ToV1(template, r)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -180,7 +186,7 @@ func (s *Server) ContainerTemplatesToLaunchConfig(v2 *model.Service, r *http.Req
 				}
 				plc = lc
 			} else {
-				lc := &client.SecondaryLaunchConfig{}
+				lc := client.SecondaryLaunchConfig{}
 				if err = convertObject(v1, lc); err != nil {
 					return nil, nil, err
 				}
@@ -190,4 +196,21 @@ func (s *Server) ContainerTemplatesToLaunchConfig(v2 *model.Service, r *http.Req
 	}
 
 	return plc, slc, nil
+}
+
+func (s *Server) ContainerLaunchConfigsToTemplates(db *model.ServiceDBProxy, r *http.Request) ([]*model.Container, error) {
+	var templates []*model.Container
+	if db.LaunchConfig != nil {
+		dbC := &model.ContainerDBProxy{}
+		if err := convertObject(db.LaunchConfig, &dbC); err != nil {
+			return nil, err
+		}
+		template, err := s.ContainerDBProxyToV2(dbC, r)
+		if err != nil {
+			return nil, err
+		}
+		templates = append(templates, template)
+	}
+
+	return templates, nil
 }

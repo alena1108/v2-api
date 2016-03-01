@@ -132,7 +132,8 @@ func (s *Server) ContainerDBProxyToV2(db *model.ContainerDBProxy, r *http.Reques
 	common := db.ContainerCommon
 	common.Transitioning = model.GetTransitioning(common.State, common.Transitioning)
 	nativeContainer := false
-	if db.NativeContainer[0] == 1 {
+
+	if db.NativeContainer != nil && db.NativeContainer[0] == 1 {
 		nativeContainer = true
 	}
 
