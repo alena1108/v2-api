@@ -19,7 +19,7 @@ type ExternalHandler struct {
 
 	Priority int64 `json:"priority,omitempty" yaml:"priority,omitempty"`
 
-	ProcessConfigs []interface{} `json:"processConfigs,omitempty" yaml:"process_configs,omitempty"`
+	ProcessConfigs []ExternalHandlerProcessConfig `json:"processConfigs,omitempty" yaml:"process_configs,omitempty"`
 
 	RemoveTime string `json:"removeTime,omitempty" yaml:"remove_time,omitempty"`
 
@@ -61,6 +61,8 @@ type ExternalHandlerOperations interface {
 	ActionCreate(*ExternalHandler) (*ExternalHandler, error)
 
 	ActionDeactivate(*ExternalHandler) (*ExternalHandler, error)
+
+	ActionError(*ExternalHandler) (*ExternalHandler, error)
 
 	ActionPurge(*ExternalHandler) (*ExternalHandler, error)
 
@@ -133,6 +135,15 @@ func (c *ExternalHandlerClient) ActionDeactivate(resource *ExternalHandler) (*Ex
 	resp := &ExternalHandler{}
 
 	err := c.rancherClient.doAction(EXTERNAL_HANDLER_TYPE, "deactivate", &resource.Resource, nil, resp)
+
+	return resp, err
+}
+
+func (c *ExternalHandlerClient) ActionError(resource *ExternalHandler) (*ExternalHandler, error) {
+
+	resp := &ExternalHandler{}
+
+	err := c.rancherClient.doAction(EXTERNAL_HANDLER_TYPE, "error", &resource.Resource, nil, resp)
 
 	return resp, err
 }

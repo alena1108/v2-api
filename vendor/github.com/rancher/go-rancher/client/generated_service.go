@@ -9,6 +9,8 @@ type Service struct {
 
 	AccountId string `json:"accountId,omitempty" yaml:"account_id,omitempty"`
 
+	AssignServiceIpAddress bool `json:"assignServiceIpAddress,omitempty" yaml:"assign_service_ip_address,omitempty"`
+
 	CreateIndex int64 `json:"createIndex,omitempty" yaml:"create_index,omitempty"`
 
 	Created string `json:"created,omitempty" yaml:"created,omitempty"`
@@ -31,7 +33,7 @@ type Service struct {
 
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
 
-	PublicEndpoints []interface{} `json:"publicEndpoints,omitempty" yaml:"public_endpoints,omitempty"`
+	PublicEndpoints []PublicEndpoint `json:"publicEndpoints,omitempty" yaml:"public_endpoints,omitempty"`
 
 	RemoveTime string `json:"removeTime,omitempty" yaml:"remove_time,omitempty"`
 
@@ -41,13 +43,11 @@ type Service struct {
 
 	Scale int64 `json:"scale,omitempty" yaml:"scale,omitempty"`
 
-	SecondaryLaunchConfigs []interface{} `json:"secondaryLaunchConfigs,omitempty" yaml:"secondary_launch_configs,omitempty"`
+	SecondaryLaunchConfigs []SecondaryLaunchConfig `json:"secondaryLaunchConfigs,omitempty" yaml:"secondary_launch_configs,omitempty"`
 
 	SelectorContainer string `json:"selectorContainer,omitempty" yaml:"selector_container,omitempty"`
 
 	SelectorLink string `json:"selectorLink,omitempty" yaml:"selector_link,omitempty"`
-
-	ServiceSchemas map[string]interface{} `json:"serviceSchemas,omitempty" yaml:"service_schemas,omitempty"`
 
 	State string `json:"state,omitempty" yaml:"state,omitempty"`
 

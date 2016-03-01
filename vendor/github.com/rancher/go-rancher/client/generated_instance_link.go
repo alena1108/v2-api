@@ -64,6 +64,8 @@ type InstanceLinkOperations interface {
 
 	ActionDeactivate(*InstanceLink) (*InstanceLink, error)
 
+	ActionError(*InstanceLink) (*InstanceLink, error)
+
 	ActionPurge(*InstanceLink) (*InstanceLink, error)
 
 	ActionRemove(*InstanceLink) (*InstanceLink, error)
@@ -135,6 +137,15 @@ func (c *InstanceLinkClient) ActionDeactivate(resource *InstanceLink) (*Instance
 	resp := &InstanceLink{}
 
 	err := c.rancherClient.doAction(INSTANCE_LINK_TYPE, "deactivate", &resource.Resource, nil, resp)
+
+	return resp, err
+}
+
+func (c *InstanceLinkClient) ActionError(resource *InstanceLink) (*InstanceLink, error) {
+
+	resp := &InstanceLink{}
+
+	err := c.rancherClient.doAction(INSTANCE_LINK_TYPE, "error", &resource.Resource, nil, resp)
 
 	return resp, err
 }

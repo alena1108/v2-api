@@ -17,7 +17,7 @@ type Project struct {
 
 	Kubernetes bool `json:"kubernetes,omitempty" yaml:"kubernetes,omitempty"`
 
-	Members []interface{} `json:"members,omitempty" yaml:"members,omitempty"`
+	Members []ProjectMember `json:"members,omitempty" yaml:"members,omitempty"`
 
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
 
@@ -63,6 +63,8 @@ type ProjectOperations interface {
 	ActionCreate(*Project) (*Account, error)
 
 	ActionDeactivate(*Project) (*Account, error)
+
+	ActionError(*Project) (*Account, error)
 
 	ActionPurge(*Project) (*Account, error)
 
@@ -137,6 +139,15 @@ func (c *ProjectClient) ActionDeactivate(resource *Project) (*Account, error) {
 	resp := &Account{}
 
 	err := c.rancherClient.doAction(PROJECT_TYPE, "deactivate", &resource.Resource, nil, resp)
+
+	return resp, err
+}
+
+func (c *ProjectClient) ActionError(resource *Project) (*Account, error) {
+
+	resp := &Account{}
+
+	err := c.rancherClient.doAction(PROJECT_TYPE, "error", &resource.Resource, nil, resp)
 
 	return resp, err
 }

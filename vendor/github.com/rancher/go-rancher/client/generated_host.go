@@ -35,7 +35,7 @@ type Host struct {
 
 	PhysicalHostId string `json:"physicalHostId,omitempty" yaml:"physical_host_id,omitempty"`
 
-	PublicEndpoints []interface{} `json:"publicEndpoints,omitempty" yaml:"public_endpoints,omitempty"`
+	PublicEndpoints []PublicEndpoint `json:"publicEndpoints,omitempty" yaml:"public_endpoints,omitempty"`
 
 	RemoveTime string `json:"removeTime,omitempty" yaml:"remove_time,omitempty"`
 
@@ -75,6 +75,8 @@ type HostOperations interface {
 	ActionDeactivate(*Host) (*Host, error)
 
 	ActionDockersocket(*Host) (*HostAccess, error)
+
+	ActionError(*Host) (*Host, error)
 
 	ActionPurge(*Host) (*Host, error)
 
@@ -156,6 +158,15 @@ func (c *HostClient) ActionDockersocket(resource *Host) (*HostAccess, error) {
 	resp := &HostAccess{}
 
 	err := c.rancherClient.doAction(HOST_TYPE, "dockersocket", &resource.Resource, nil, resp)
+
+	return resp, err
+}
+
+func (c *HostClient) ActionError(resource *Host) (*Host, error) {
+
+	resp := &Host{}
+
+	err := c.rancherClient.doAction(HOST_TYPE, "error", &resource.Resource, nil, resp)
 
 	return resp, err
 }

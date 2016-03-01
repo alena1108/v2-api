@@ -62,6 +62,8 @@ type PasswordOperations interface {
 
 	ActionDeactivate(*Password) (*Credential, error)
 
+	ActionError(*Password) (*Credential, error)
+
 	ActionPurge(*Password) (*Credential, error)
 
 	ActionRemove(*Password) (*Credential, error)
@@ -140,6 +142,15 @@ func (c *PasswordClient) ActionDeactivate(resource *Password) (*Credential, erro
 	resp := &Credential{}
 
 	err := c.rancherClient.doAction(PASSWORD_TYPE, "deactivate", &resource.Resource, nil, resp)
+
+	return resp, err
+}
+
+func (c *PasswordClient) ActionError(resource *Password) (*Credential, error) {
+
+	resp := &Credential{}
+
+	err := c.rancherClient.doAction(PASSWORD_TYPE, "error", &resource.Resource, nil, resp)
 
 	return resp, err
 }

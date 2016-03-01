@@ -62,6 +62,8 @@ type ProjectMemberOperations interface {
 
 	ActionDeactivate(*ProjectMember) (*ProjectMember, error)
 
+	ActionError(*ProjectMember) (*ProjectMember, error)
+
 	ActionPurge(*ProjectMember) (*ProjectMember, error)
 
 	ActionRemove(*ProjectMember) (*ProjectMember, error)
@@ -133,6 +135,15 @@ func (c *ProjectMemberClient) ActionDeactivate(resource *ProjectMember) (*Projec
 	resp := &ProjectMember{}
 
 	err := c.rancherClient.doAction(PROJECT_MEMBER_TYPE, "deactivate", &resource.Resource, nil, resp)
+
+	return resp, err
+}
+
+func (c *ProjectMemberClient) ActionError(resource *ProjectMember) (*ProjectMember, error) {
+
+	resp := &ProjectMember{}
+
+	err := c.rancherClient.doAction(PROJECT_MEMBER_TYPE, "error", &resource.Resource, nil, resp)
 
 	return resp, err
 }

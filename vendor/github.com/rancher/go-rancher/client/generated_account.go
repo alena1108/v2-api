@@ -17,6 +17,8 @@ type Account struct {
 
 	ExternalIdType string `json:"externalIdType,omitempty" yaml:"external_id_type,omitempty"`
 
+	Identity string `json:"identity,omitempty" yaml:"identity,omitempty"`
+
 	Kind string `json:"kind,omitempty" yaml:"kind,omitempty"`
 
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
@@ -57,6 +59,8 @@ type AccountOperations interface {
 	ActionCreate(*Account) (*Account, error)
 
 	ActionDeactivate(*Account) (*Account, error)
+
+	ActionError(*Account) (*Account, error)
 
 	ActionPurge(*Account) (*Account, error)
 
@@ -129,6 +133,15 @@ func (c *AccountClient) ActionDeactivate(resource *Account) (*Account, error) {
 	resp := &Account{}
 
 	err := c.rancherClient.doAction(ACCOUNT_TYPE, "deactivate", &resource.Resource, nil, resp)
+
+	return resp, err
+}
+
+func (c *AccountClient) ActionError(resource *Account) (*Account, error) {
+
+	resp := &Account{}
+
+	err := c.rancherClient.doAction(ACCOUNT_TYPE, "error", &resource.Resource, nil, resp)
 
 	return resp, err
 }

@@ -74,6 +74,8 @@ type VolumeOperations interface {
 
 	ActionDeallocate(*Volume) (*Volume, error)
 
+	ActionError(*Volume) (*Volume, error)
+
 	ActionPurge(*Volume) (*Volume, error)
 
 	ActionRemove(*Volume) (*Volume, error)
@@ -163,6 +165,15 @@ func (c *VolumeClient) ActionDeallocate(resource *Volume) (*Volume, error) {
 	resp := &Volume{}
 
 	err := c.rancherClient.doAction(VOLUME_TYPE, "deallocate", &resource.Resource, nil, resp)
+
+	return resp, err
+}
+
+func (c *VolumeClient) ActionError(resource *Volume) (*Volume, error) {
+
+	resp := &Volume{}
+
+	err := c.rancherClient.doAction(VOLUME_TYPE, "error", &resource.Resource, nil, resp)
 
 	return resp, err
 }

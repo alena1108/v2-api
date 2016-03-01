@@ -68,6 +68,8 @@ type PortOperations interface {
 
 	ActionDeactivate(*Port) (*Port, error)
 
+	ActionError(*Port) (*Port, error)
+
 	ActionPurge(*Port) (*Port, error)
 
 	ActionRemove(*Port) (*Port, error)
@@ -139,6 +141,15 @@ func (c *PortClient) ActionDeactivate(resource *Port) (*Port, error) {
 	resp := &Port{}
 
 	err := c.rancherClient.doAction(PORT_TYPE, "deactivate", &resource.Resource, nil, resp)
+
+	return resp, err
+}
+
+func (c *PortClient) ActionError(resource *Port) (*Port, error) {
+
+	resp := &Port{}
+
+	err := c.rancherClient.doAction(PORT_TYPE, "error", &resource.Resource, nil, resp)
 
 	return resp, err
 }

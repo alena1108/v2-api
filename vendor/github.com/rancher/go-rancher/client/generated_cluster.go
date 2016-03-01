@@ -39,7 +39,7 @@ type Cluster struct {
 
 	Port int64 `json:"port,omitempty" yaml:"port,omitempty"`
 
-	PublicEndpoints []interface{} `json:"publicEndpoints,omitempty" yaml:"public_endpoints,omitempty"`
+	PublicEndpoints []PublicEndpoint `json:"publicEndpoints,omitempty" yaml:"public_endpoints,omitempty"`
 
 	RemoveTime string `json:"removeTime,omitempty" yaml:"remove_time,omitempty"`
 
@@ -81,6 +81,8 @@ type ClusterOperations interface {
 	ActionDeactivate(*Cluster) (*Host, error)
 
 	ActionDockersocket(*Cluster) (*HostAccess, error)
+
+	ActionError(*Cluster) (*Host, error)
 
 	ActionPurge(*Cluster) (*Host, error)
 
@@ -173,6 +175,15 @@ func (c *ClusterClient) ActionDockersocket(resource *Cluster) (*HostAccess, erro
 	resp := &HostAccess{}
 
 	err := c.rancherClient.doAction(CLUSTER_TYPE, "dockersocket", &resource.Resource, nil, resp)
+
+	return resp, err
+}
+
+func (c *ClusterClient) ActionError(resource *Cluster) (*Host, error) {
+
+	resp := &Host{}
+
+	err := c.rancherClient.doAction(CLUSTER_TYPE, "error", &resource.Resource, nil, resp)
 
 	return resp, err
 }

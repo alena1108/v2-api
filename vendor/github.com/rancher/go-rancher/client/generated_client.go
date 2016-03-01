@@ -47,6 +47,7 @@ type RancherClient struct {
 	LoadBalancerService                      LoadBalancerServiceOperations
 	ExternalService                          ExternalServiceOperations
 	DnsService                               DnsServiceOperations
+	KubernetesService                        KubernetesServiceOperations
 	LaunchConfig                             LaunchConfigOperations
 	SecondaryLaunchConfig                    SecondaryLaunchConfigOperations
 	AddRemoveLoadBalancerServiceLinkInput    AddRemoveLoadBalancerServiceLinkInputOperations
@@ -107,6 +108,8 @@ type RancherClient struct {
 	FieldDocumentation                       FieldDocumentationOperations
 	ContainerExec                            ContainerExecOperations
 	ContainerLogs                            ContainerLogsOperations
+	ContainerProxy                           ContainerProxyOperations
+	ServiceProxy                             ServiceProxyOperations
 	HostAccess                               HostAccessOperations
 	DockerBuild                              DockerBuildOperations
 	ActiveSetting                            ActiveSettingOperations
@@ -179,6 +182,7 @@ func constructClient() *RancherClient {
 	client.LoadBalancerService = newLoadBalancerServiceClient(client)
 	client.ExternalService = newExternalServiceClient(client)
 	client.DnsService = newDnsServiceClient(client)
+	client.KubernetesService = newKubernetesServiceClient(client)
 	client.LaunchConfig = newLaunchConfigClient(client)
 	client.SecondaryLaunchConfig = newSecondaryLaunchConfigClient(client)
 	client.AddRemoveLoadBalancerServiceLinkInput = newAddRemoveLoadBalancerServiceLinkInputClient(client)
@@ -239,6 +243,8 @@ func constructClient() *RancherClient {
 	client.FieldDocumentation = newFieldDocumentationClient(client)
 	client.ContainerExec = newContainerExecClient(client)
 	client.ContainerLogs = newContainerLogsClient(client)
+	client.ContainerProxy = newContainerProxyClient(client)
+	client.ServiceProxy = newServiceProxyClient(client)
 	client.HostAccess = newHostAccessClient(client)
 	client.DockerBuild = newDockerBuildClient(client)
 	client.ActiveSetting = newActiveSettingClient(client)

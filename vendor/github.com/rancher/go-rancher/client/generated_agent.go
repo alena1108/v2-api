@@ -60,6 +60,8 @@ type AgentOperations interface {
 
 	ActionDeactivate(*Agent) (*Agent, error)
 
+	ActionError(*Agent) (*Agent, error)
+
 	ActionPurge(*Agent) (*Agent, error)
 
 	ActionReconnect(*Agent) (*Agent, error)
@@ -133,6 +135,15 @@ func (c *AgentClient) ActionDeactivate(resource *Agent) (*Agent, error) {
 	resp := &Agent{}
 
 	err := c.rancherClient.doAction(AGENT_TYPE, "deactivate", &resource.Resource, nil, resp)
+
+	return resp, err
+}
+
+func (c *AgentClient) ActionError(resource *Agent) (*Agent, error) {
+
+	resp := &Agent{}
+
+	err := c.rancherClient.doAction(AGENT_TYPE, "error", &resource.Resource, nil, resp)
 
 	return resp, err
 }
