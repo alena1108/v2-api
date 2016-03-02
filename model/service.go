@@ -14,14 +14,10 @@ type ServiceCommon struct {
 	PublicEndpoints        []client.PublicEndpoint `json:"publicEndpoints" schema:"type=array[publicEndpoint]"`
 	Restart                *client.ServiceRestart  `json:"restart" schema:"type=serviceRestart"`
 
-	/*ContainerIds           []ID                `json:"containerIds"`
-	HealthState            string              `json:"healthState"`
-	HostnameOverride       string              `json:"hostnameOverride"`
-	LinkedServiceIds       []ID                `json:"linkedServiceIds"`
-
-
-
-	ScalePolicy            interface{}         `json:"scalePolicy"`
+	/*
+		HealthState            string              `json:"healthState"`
+		HostnameOverride       string              `json:"hostnameOverride"`
+		ScalePolicy            interface{}         `json:"scalePolicy"`
 	*/
 }
 
@@ -35,6 +31,8 @@ type Service struct {
 	RetainIPAddress    bool            `json:"retainIpAddress" schema:"create=true"`
 	ContainerTemplates []*Container    `json:"containerTemplates" schema:"create=true, type=array[container]"`
 	Upgrade            *ServiceUpgrade `json:"upgrade" schema:"type=serviceUpgrade"`
+	ContainerIDs       []string        `json:"containerIds"`
+	LinkedServiceIds   []ServiceLink   `json:"linkedServiceIds"`
 }
 
 type ServiceDBProxy struct {

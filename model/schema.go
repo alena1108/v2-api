@@ -38,5 +38,8 @@ func NewSchema() *client.Schemas {
 	inService := schemas.AddType("inServiceUpgradeStrategy", InServiceUpgradeStrategy{})
 	inService.CollectionMethods = []string{}
 
+	serviceLink := schemas.AddType("serviceLink", ServiceLink{})
+	serviceLink.CollectionMethods = []string{}
+
 	return schemas
 }

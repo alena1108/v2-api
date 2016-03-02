@@ -140,6 +140,16 @@ func (s *Server) ServiceDBProxyToV2(db *model.ServiceDBProxy, r *http.Request) (
 		return nil, err
 	}
 
+	containers, err := s.GetServiceContainerIds(s.deobfuscate(r, "service", db.Id), r)
+	if err != nil {
+		return nil, err
+	}
+
+	links, err := s.GetServiceLinks(s.deobfuscate(r, "service", db.Id), r)
+	if err != nil {
+		return nil, err
+	}
+
 	return &model.Service{
 		Resource:           db.Resource,
 		ServiceCommon:      common,
@@ -150,6 +160,8 @@ func (s *Server) ServiceDBProxyToV2(db *model.ServiceDBProxy, r *http.Request) (
 		RetainIPAddress:    db.RetainIP,
 		ContainerTemplates: templates,
 		Upgrade:            upgrade,
+		ContainerIDs:       containers,
+		LinkedServiceIds:   links,
 	}, nil
 }
 
@@ -230,6 +242,7 @@ func (s *Server) ServiceV2ToV1(v2 *model.Service, r *http.Request) (*client.Serv
 		return nil, err
 	}
 	v1.Upgrade = upgrade
+
 	logrus.Infof("service vip %v", v2.AssignServiceIPAddress)
 
 	return v1, nil
@@ -293,4 +306,71 @@ func (s *Server) ContainerTemplatesDBProxyToV2(lc *model.ContainerDBProxy, slc [
 	}
 
 	return templates, nil
+}
+
+func (s *Server) GetServiceContainerIds(serviceId string, r *http.Request) ([]string, error) {
+	q := `
+      SELECT i.id
+      FROM instance i
+      JOIN service_expose_map AS e
+      ON e.instance_id = i.id
+      WHERE
+          e.service_id = :service_id
+          AND i.account_id = :account_id
+          AND i.removed IS NULL
+          AND i.kind = 'container'
+          AND e.removed IS NULL`
+
+	rows, err := s.namedQuery(q, map[string]interface{}{
+		"account_id": s.getAccountID(r),
+		"service_id": serviceId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ids []string
+	for rows.Next() {
+
+		var id string
+
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+
+		ids = append(ids, s.obfuscate(r, "instance", id))
+	}
+	return ids, nil
+}
+
+func (s *Server) GetServiceLinks(serviceId string, r *http.Request) ([]model.ServiceLink, error) {
+	q := `
+      SELECT consumed_service_id, name
+      FROM service_consume_map
+      WHERE
+          service_id = :service_id
+          AND account_id = :account_id
+          AND removed IS NULL`
+
+	rows, err := s.namedQuery(q, map[string]interface{}{
+		"account_id": s.getAccountID(r),
+		"service_id": serviceId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var links []model.ServiceLink
+	for rows.Next() {
+
+		var link model.ServiceLink
+
+		if err := rows.Scan(&link.ServiceID, &link.Alias); err != nil {
+			return nil, err
+		}
+
+		link.ServiceID = s.obfuscate(r, "service", link.ServiceID)
+		links = append(links, link)
+	}
+	return links, nil
 }
